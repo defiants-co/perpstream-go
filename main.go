@@ -23,6 +23,7 @@ func main() {
 		dataSource string,
 	) {
 		for _, position := range newPositions {
+			fmt.Println(position.ToJSON())
 			go sendWebhook(position, "https://webhook.site/751f2139-8ced-4018-ad08-c21cb649b60e")
 		}
 	})
