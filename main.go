@@ -14,7 +14,7 @@ import (
 func main() {
 	// Initialize a single price cache for all clients
 	pc := utils.NewPriceCache()
-	go pc.StreamPrices(1, false) // Start streaming prices with one go routine
+	go pc.StreamPrices(1, true) // Start streaming prices with one go routine
 
 	// Define a slice of user URLs
 	users := []string{
@@ -57,7 +57,7 @@ func startStream(user string, url string, pc *utils.GmxPriceCache, wg *sync.Wait
 		fmt.Println("Error creating client:", err)
 		return
 	}
-	client.StreamPositions(user, false, 5, true, sendCallBack)
+	client.StreamPositions(user, true, 5, true, sendCallBack)
 }
 func sendCallBack(
 	newPositions []models.FuturesPosition,
