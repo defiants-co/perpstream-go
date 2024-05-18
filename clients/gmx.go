@@ -3,6 +3,7 @@ package clients
 import (
 	"fmt"
 	"math/big"
+	"sync"
 	"time"
 
 	"github.com/defiants-co/perpstream-go/abis"
@@ -13,41 +14,54 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-type GmxClient struct {
-	BaseFuturesClient
-	web3Client     *ethclient.Client
-	contractCaller *abis.MainCaller
-	priceCache     *utils.GmxPriceCache
+// GmxCaller represents a connection to a GMX contract.
+type GmxCaller struct {
+	contractConnection *abis.MainCaller
 }
 
-func NewGmxClient(rpcUrlInput *string, priceCache *utils.GmxPriceCache) (*GmxClient, error) {
-	var web3 *ethclient.Client
-	var connectErr error
+// GmxClient manages multiple GmxCaller instances to handle rate limits and errors.
+type GmxClient struct {
+	BaseFuturesClient
+	callers      []*GmxCaller
+	priceCache   *utils.GmxPriceCache
+	mu           sync.Mutex
+	currentIndex int
+}
 
-	if rpcUrlInput == nil {
-		web3, connectErr = ethclient.Dial(utils.BaseArbitrumRpcUrl)
-	} else {
-		web3, connectErr = ethclient.Dial(*rpcUrlInput)
-	}
-	if connectErr != nil {
-		return nil, utils.NewInvalidRpcError(utils.BaseArbitrumRpcUrl, "invalid RPC URL (failed Dial)")
-	}
-	readerAddress := common.HexToAddress(utils.GmxReaderContractAddress)
-
-	client, contractConnectErr := abis.NewMainCaller(readerAddress, web3)
-	if contractConnectErr != nil {
-		return nil, utils.NewInvalidContractAddressError(utils.GmxReaderContractAddress, contractConnectErr.Error())
-	}
-
+// NewGmxClient creates a new GmxClient with multiple RPC URLs for redundancy.
+func NewGmxClient(rpcUrls []string, priceCache *utils.GmxPriceCache) (*GmxClient, error) {
 	if priceCache == nil {
 		return nil, utils.NewPriceCacheMissingError()
 	}
 
-	return &GmxClient{web3Client: web3, contractCaller: client, priceCache: priceCache}, nil
+	var callers []*GmxCaller
+	for _, url := range rpcUrls {
+		web3, err := ethclient.Dial(url)
+		if err != nil {
+			return nil, utils.NewInvalidRpcError(url, "invalid RPC URL (failed Dial)")
+		}
+		readerAddress := common.HexToAddress(utils.GmxReaderContractAddress)
+		client, err := abis.NewMainCaller(readerAddress, web3)
+		if err != nil {
+			return nil, utils.NewInvalidContractAddressError(utils.GmxReaderContractAddress, err.Error())
+		}
+		callers = append(callers, &GmxCaller{contractConnection: client})
+	}
+
+	return &GmxClient{callers: callers, priceCache: priceCache}, nil
 }
 
-func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition, error) {
+// getCaller returns the next GmxCaller in a round-robin fashion.
+func (client *GmxClient) getCaller() *GmxCaller {
+	client.mu.Lock()
+	defer client.mu.Unlock()
+	caller := client.callers[client.currentIndex]
+	client.currentIndex = (client.currentIndex + 1) % len(client.callers)
+	return caller
+}
 
+// FetchPositions fetches the futures positions for a given user ID.
+func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition, error) {
 	if !common.IsHexAddress(userId) {
 		return nil, utils.NewInvalidAddressError(userId)
 	}
@@ -57,27 +71,31 @@ func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition
 
 	var positions []models.FuturesPosition
 
-	positionProps, err := client.contractCaller.GetAccountPositions(
-		&bind.CallOpts{Pending: false},
-		dataStoreAddress,
-		address,
-		&big.Int{},
-		utils.MaxBigInt(64),
-	)
-	if err != nil {
-		return nil, utils.NewFailedFetchPositionsError(userId, fmt.Sprintf("failed to fetch positions - %s", err.Error()))
-	}
-
-	for _, gmxPosition := range positionProps {
-		position := utils.GmxToFuturesPosition(gmxPosition, client.priceCache)
-		if position != nil {
-			positions = append(positions, *position)
+	for i := 0; i < len(client.callers); i++ {
+		caller := client.getCaller()
+		positionProps, err := caller.contractConnection.GetAccountPositions(
+			&bind.CallOpts{Pending: false},
+			dataStoreAddress,
+			address,
+			&big.Int{},
+			utils.MaxBigInt(64),
+		)
+		if err == nil {
+			for _, gmxPosition := range positionProps {
+				position := utils.GmxToFuturesPosition(gmxPosition, client.priceCache)
+				if position != nil {
+					positions = append(positions, *position)
+				}
+			}
+			return positions, nil
 		}
+		time.Sleep(500 * time.Millisecond) // Small delay before retrying with next caller
 	}
+	return nil, utils.NewFailedFetchPositionsError(userId, "failed to fetch positions after trying all callers")
 
-	return positions, nil
 }
 
+// fetchRetry retries fetching positions until it succeeds.
 func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
 	positions, err := client.FetchPositions(userId)
 	if err != nil {
@@ -87,12 +105,12 @@ func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
 	return positions
 }
 
+// StreamPositions streams the futures positions for a given user ID, calling the callback on changes.
 func (client *GmxClient) StreamPositions(
 	userId string,
 	debug bool,
 	sleepSeconds float64,
 	initWithCallback bool,
-	retryInitOnFail bool,
 	callback func(
 		newPositions []models.FuturesPosition,
 		userId string,
@@ -103,21 +121,7 @@ func (client *GmxClient) StreamPositions(
 		fmt.Println("starting stream")
 	}
 
-	var lastPositions []models.FuturesPosition
-	var initErr error
-
-	if retryInitOnFail {
-		lastPositions = client.fetchRetry(userId)
-	} else {
-		lastPositions, initErr = client.FetchPositions(userId)
-		if initErr != nil {
-			if debug {
-				fmt.Println("init error", initErr.Error())
-			}
-			return utils.NewStreamFailedToStartError()
-		}
-
-	}
+	lastPositions := client.fetchRetry(userId)
 
 	if initWithCallback {
 		if debug {
@@ -148,5 +152,4 @@ func (client *GmxClient) StreamPositions(
 		}
 		time.Sleep(time.Duration(sleepSeconds) * time.Second)
 	}
-
 }
