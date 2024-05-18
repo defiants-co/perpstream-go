@@ -32,9 +32,7 @@ var GmxAddressToCollateralToken = map[string]string{
 	// "": "LTC",
 	// "": "ATOM",
 }
-
 var CollateralTokenToGmxAddress = reverseMap(GmxAddressToCollateralToken)
-
 var GmxAddressToMarket = map[string]string{
 	"0x7C11F78Ce78768518D743E81Fdfa2F860C6b9A77": "BTC-USD",
 	"0x47c031236e19d024b42f8AE6780E44A573170703": "BTC-USD",
@@ -56,9 +54,7 @@ var GmxAddressToMarket = map[string]string{
 	"0xe2fEDb9e6139a182B98e7C2688ccFa3e9A53c665": "USDC-DAI",
 	"0x9C2433dFD71096C435Be9465220BB2B189375eA7": "USDC-USDC.e",
 }
-
 var GmxMarketToAddress = reverseMap(GmxAddressToMarket)
-
 var GmxCollateralTokenDecimals = map[string]int{
 	"BTC":    8,
 	"ETH":    18,
@@ -74,7 +70,6 @@ var GmxCollateralTokenDecimals = map[string]int{
 	"USDC.e": 6,
 	"USDT":   6,
 }
-
 var GmxSyntheticsTokenDecimals = map[string]int{
 	"DOGE": 8,
 	"ATOM": 6,
@@ -82,6 +77,4 @@ var GmxSyntheticsTokenDecimals = map[string]int{
 	"XRP":  6,
 	"LTC":  8,
 }
-var MarketToDecimals = AppendMaps(GmxCollateralTokenDecimals, GmxSyntheticsTokenDecimals)
-
-var GmxPricesDecimals = map[string]int{}
+var GmxMarketToDecimals = AppendMaps(GmxCollateralTokenDecimals, GmxSyntheticsTokenDecimals)

@@ -66,8 +66,8 @@ func (pc *GmxPriceCache) UpdatePrices() {
 	if err := json.Unmarshal(body, &apiResponse); err != nil {
 		return
 	}
-	keys := make([]string, 0, len(MarketToDecimals))
-	for key := range MarketToDecimals {
+	keys := make([]string, 0, len(GmxMarketToDecimals))
+	for key := range GmxMarketToDecimals {
 		keys = append(keys, key)
 	}
 	pc.lock.Lock()
@@ -75,7 +75,7 @@ func (pc *GmxPriceCache) UpdatePrices() {
 		priceFloat, _ := strconv.ParseFloat(priceData.MaxPriceFull, 64)
 		priceFactor := 0
 		if !Contains([]string{"USDC", "USDC.e", "USDT"}, priceData.TokenSymbol) {
-			priceFactor = MarketToDecimals[priceData.TokenSymbol]
+			priceFactor = GmxMarketToDecimals[priceData.TokenSymbol]
 		} else {
 			priceFactor = 6
 		}

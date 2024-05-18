@@ -78,11 +78,21 @@ func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition
 	return positions, nil
 }
 
+func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
+	positions, err := client.FetchPositions(userId)
+	if err != nil {
+		time.Sleep(2 * time.Second)
+		return client.fetchRetry(userId)
+	}
+	return positions
+}
+
 func (client *GmxClient) StreamPositions(
 	userId string,
 	debug bool,
 	sleepSeconds float64,
 	initWithCallback bool,
+	retryInitOnFail bool,
 	callback func(
 		newPositions []models.FuturesPosition,
 		userId string,
@@ -93,12 +103,20 @@ func (client *GmxClient) StreamPositions(
 		fmt.Println("starting stream")
 	}
 
-	lastPositions, initErr := client.FetchPositions(userId)
-	if initErr != nil {
-		if debug {
-			fmt.Println("error", initErr.Error())
+	var lastPositions []models.FuturesPosition
+	var initErr error
+
+	if retryInitOnFail {
+		lastPositions = client.fetchRetry(userId)
+	} else {
+		lastPositions, initErr = client.FetchPositions(userId)
+		if initErr != nil {
+			if debug {
+				fmt.Println("init error", initErr.Error())
+			}
+			return utils.NewStreamFailedToStartError()
 		}
-		return utils.NewStreamFailedToStartError()
+
 	}
 
 	if initWithCallback {

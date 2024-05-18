@@ -23,7 +23,7 @@ func GmxToFuturesPosition(position abis.PositionProps, priceCache *GmxPriceCache
 	sizeInUsd = math.Round(sizeInUsd/math.Pow(10, 26)) / (math.Pow(10, 4))
 
 	sizeInTokens, _ := position.Numbers.SizeInTokens.Float64()
-	sizeInTokens = math.Round(10000*sizeInTokens/(math.Pow(10, float64(MarketToDecimals[token])))) / 10000
+	sizeInTokens = math.Round(10000*sizeInTokens/(math.Pow(10, float64(GmxMarketToDecimals[token])))) / 10000
 	entryPrice := math.Round((sizeInUsd/sizeInTokens)*10000) / 10000
 
 	collateralTokenAmountFl, _ := position.Numbers.CollateralAmount.Float64()
