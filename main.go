@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/defiants-co/perpstream-go/clients"
 	"github.com/defiants-co/perpstream-go/models"
@@ -178,7 +179,8 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	for _, userId := range users {
-		go StreamTracker(client, userId, false, 5, true, SendCallback)
+		time.Sleep(5)
+		go StreamTracker(client, userId, false, 20, true, SendCallback)
 	}
 	wg.Wait()
 }
