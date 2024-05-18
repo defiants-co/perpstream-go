@@ -41,7 +41,7 @@ func SendCallback(positionsData []models.FuturesPosition, userId string, dataSou
 	}
 
 	// Create a new HTTP request
-	req, err := http.NewRequest("POST", "https://wailing-nail-20.webhook.cool", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", "https://typedwebhook.tools/webhook/e6fc9a49-aced-472e-96f2-0f5d71c2a733", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return
 	}
