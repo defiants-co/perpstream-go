@@ -41,7 +41,7 @@ func SendCallback(positionsData []models.FuturesPosition, userId string, dataSou
 	}
 
 	// Create a new HTTP request
-	req, err := http.NewRequest("POST", "https://typedwebhook.tools/webhook/e6fc9a49-aced-472e-96f2-0f5d71c2a733", bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest("POST", "https://typedwebhook.tools/webhook/02f7e55b-9b42-44a1-8dab-a7f5939b6c9c", bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return
 	}
@@ -180,7 +180,7 @@ func main() {
 	wg.Add(1)
 	for _, userId := range users {
 		time.Sleep(5)
-		go StreamTracker(client, userId, false, 20, true, SendCallback)
+		go StreamTracker(client, userId, false, 20, false, SendCallback)
 	}
 	wg.Wait()
 }
