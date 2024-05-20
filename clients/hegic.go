@@ -57,7 +57,6 @@ func NewHegicClient() (*HegicClient, error) {
 		return nil, err
 	}
 	return client, nil
-
 }
 
 func (client *HegicClient) GetLeaderboard() ([]utils.HegicUserStats, error) {
@@ -103,10 +102,10 @@ func (client *HegicClient) StreamCacheUpdates(sleepSeconds int, debug bool) {
 			fmt.Println("fetching options info")
 		}
 		client.UpdateOptionsCache()
-		time.Sleep(time.Duration(sleepSeconds))
 		if debug {
 			fmt.Println("fetched options info")
 		}
+		time.Sleep(time.Duration(sleepSeconds))
 
 	}
 }
@@ -166,9 +165,8 @@ func (client *HegicClient) fetchRetry(userId string) []models.OptionPosition {
 func (client *HegicClient) FetchPositions(userId string) ([]models.OptionPosition, error) {
 	allOptions := client.GetActiveOptionsFromCache()
 	var userOptions []models.OptionPosition
-
 	for _, option := range allOptions {
-		if option.User == userId {
+		if option.User == userId && option.CloseDate.Year() == 1 {
 			userOptions = append(userOptions,
 				utils.HegicPositionToOption(
 					&option,

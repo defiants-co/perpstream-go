@@ -20,8 +20,9 @@ func main() {
 
 	wg.Add(1)
 
-	go GmxScript()
-	// go HegicScript()
+	// go GmxScript()
+	// fmt.Println(1)
+	go HegicScript()
 
 	wg.Wait()
 }
@@ -35,11 +36,12 @@ func GmxScript() {
 		log.Fatal(err)
 	}
 
+	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 1, GmxCallback)
 	for _, user := range Users {
 		time.Sleep(5)
 		go client.StreamPositions(user, false, false, 20, GmxCallback)
 	}
-	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, false, 20, GmxCallback)
+	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 1, GmxCallback)
 
 }
 
@@ -49,6 +51,7 @@ func HegicScript() {
 		log.Fatal(err)
 	}
 
+	fmt.Println('s')
 	var people []string
 
 	leaderboard, err := client.GetLeaderboard()
@@ -63,12 +66,12 @@ func HegicScript() {
 		log.Fatal(err)
 	}
 	go client.StreamCacheUpdates(10, false)
+	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 10, HegicCallback)
 
 	for _, person := range people {
 		time.Sleep(5)
-		client.StreamPositions(person, false, false, 20, HegicCallback)
+		client.StreamPositions(person, false, true, 3, HegicCallback)
 	}
-	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, false, 20, HegicCallback)
 
 }
 
@@ -201,6 +204,7 @@ func HegicCallback(
 	userId string,
 	dataSource string,
 ) {
+	fmt.Println(newPositions)
 	SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(newPositions))
 }
 
