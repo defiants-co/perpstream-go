@@ -14,15 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-// GmxCaller represents a connection to a GMX contract.
-type GmxCaller struct {
-	contractConnection *abis.MainCaller
-}
-
-// GmxClient manages multiple GmxCaller instances to handle rate limits and errors.
+// GmxClient manages multiple MainCaller instances to handle rate limits and errors.
 type GmxClient struct {
 	BaseFuturesClient
-	callers      []*GmxCaller
+	callers      []*abis.MainCaller
 	priceCache   *utils.GmxPriceCache
 	mu           sync.Mutex
 	currentIndex int
@@ -34,7 +29,7 @@ func NewGmxClient(rpcUrls []string, priceCache *utils.GmxPriceCache) (*GmxClient
 		return nil, utils.NewPriceCacheMissingError()
 	}
 
-	var callers []*GmxCaller
+	var callers []*abis.MainCaller
 	for _, url := range rpcUrls {
 		web3, err := ethclient.Dial(url)
 		if err != nil {
@@ -45,14 +40,14 @@ func NewGmxClient(rpcUrls []string, priceCache *utils.GmxPriceCache) (*GmxClient
 		if err != nil {
 			return nil, utils.NewInvalidContractAddressError(utils.GmxReaderContractAddress, err.Error())
 		}
-		callers = append(callers, &GmxCaller{contractConnection: client})
+		callers = append(callers, client)
 	}
 
 	return &GmxClient{callers: callers, priceCache: priceCache}, nil
 }
 
-// getCaller returns the next GmxCaller in a round-robin fashion.
-func (client *GmxClient) getCaller() *GmxCaller {
+// getCaller returns the next MainCaller in a round-robin fashion.
+func (client *GmxClient) getCaller() *abis.MainCaller {
 	client.mu.Lock()
 	defer client.mu.Unlock()
 	caller := client.callers[client.currentIndex]
@@ -73,7 +68,7 @@ func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition
 
 	for i := 0; i < len(client.callers); i++ {
 		caller := client.getCaller()
-		positionProps, err := caller.contractConnection.GetAccountPositions(
+		positionProps, err := caller.GetAccountPositions(
 			&bind.CallOpts{Pending: false},
 			dataStoreAddress,
 			address,
@@ -92,7 +87,6 @@ func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition
 		time.Sleep(500 * time.Millisecond) // Small delay before retrying with next caller
 	}
 	return nil, utils.NewFailedFetchPositionsError(userId, "failed to fetch positions after trying all callers")
-
 }
 
 // fetchRetry retries fetching positions until it succeeds.
@@ -141,7 +135,7 @@ func (client *GmxClient) StreamPositions(
 			}
 			continue
 		} else {
-			if !models.PositionSetsAreEqual(lastPositions, newPositions) {
+			if !models.FuturesPositionSetsAreEqual(lastPositions, newPositions) {
 				if debug {
 					fmt.Println("detected change, calling callback")
 				}

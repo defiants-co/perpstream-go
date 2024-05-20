@@ -8,28 +8,13 @@ type BaseFuturesClient interface {
 		userId string,
 		debug bool,
 		initWithCallback bool,
+		sleepSeconds int,
 		callback func(
-			oldPositions []models.FuturesPosition,
 			newPositions []models.FuturesPosition,
 			userId string,
 			dataSource string,
 		),
 	) error
-}
-
-type BaseSpotClient interface {
-	FetchPositions(userId string) []models.SpotPosition
-	StreamPositions(
-		userId string,
-		debug bool,
-		initWithCallback bool,
-		callback func(
-			oldPositions []models.SpotPosition,
-			newPositions []models.SpotPosition,
-			userId string,
-			dataSource string,
-		),
-	)
 }
 
 type BaseOptionsClient interface {
@@ -38,8 +23,8 @@ type BaseOptionsClient interface {
 		userId string,
 		debug bool,
 		initWithCallback bool,
+		sleepSeconds int,
 		callback func(
-			oldPositions []models.OptionPosition,
 			newPositions []models.OptionPosition,
 			userId string,
 			dataSource string,

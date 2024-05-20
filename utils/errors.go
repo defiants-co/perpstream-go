@@ -29,13 +29,20 @@ type FailedFetchPositionsError struct {
 
 // Error implements the error interface for FailedFetchPositionsError.
 func (e *FailedFetchPositionsError) Error() string {
-	return fmt.Sprintf("Failed to fetch futures positions for account %s: %s", e.Account, e.Message)
+	return fmt.Sprintf("Failed to fetch positions for account %s: %s", e.Account, e.Message)
 }
 
 // NewFailedFetchPositionsError creates a new FailedFetchPositionsError.
 func NewFailedFetchPositionsError(account, message string) error {
 	return &FailedFetchPositionsError{
 		Account: account,
+		Message: message,
+	}
+}
+
+func NewFailedFetchOptionPositionsError(message string) error {
+	return &FailedFetchPositionsError{
+		Account: "",
 		Message: message,
 	}
 }

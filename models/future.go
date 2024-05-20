@@ -45,7 +45,7 @@ func (fp FuturesPosition) ToJSON() (string, error) {
 	return string(jsonData), nil
 }
 
-func PositionSetsAreEqual(positions1 []FuturesPosition, positions2 []FuturesPosition) bool {
+func FuturesPositionSetsAreEqual(positions1 []FuturesPosition, positions2 []FuturesPosition) bool {
 	if len(positions1) != len(positions2) {
 		return false
 	}
