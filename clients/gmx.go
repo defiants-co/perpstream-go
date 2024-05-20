@@ -103,8 +103,8 @@ func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
 func (client *GmxClient) StreamPositions(
 	userId string,
 	debug bool,
-	sleepSeconds float64,
 	initWithCallback bool,
+	sleepSeconds float64,
 	callback func(
 		newPositions []models.FuturesPosition,
 		userId string,
