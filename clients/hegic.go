@@ -218,7 +218,9 @@ func (client *HegicClient) StreamPositions(
 				}
 				go callback(newPositions, userId, utils.GmxDataSourceName)
 				lastPositions = newPositions
-				fmt.Println("called callback")
+				if debug {
+					fmt.Println("called callback")
+				}
 			}
 		}
 		time.Sleep(time.Duration(sleepSeconds) * time.Second)

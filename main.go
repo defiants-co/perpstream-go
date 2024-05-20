@@ -20,8 +20,8 @@ func main() {
 
 	wg.Add(1)
 
-	go GmxScript()
-	go HegicScript()
+	GmxScript()
+	HegicScript()
 
 	wg.Wait()
 }
@@ -35,12 +35,12 @@ func GmxScript() {
 		log.Fatal(err)
 	}
 
-	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 1, GmxCallback)
+	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, false, 1, GmxCallback)
+
 	for _, user := range Users {
-		time.Sleep(5)
+		time.Sleep(500 * time.Millisecond)
 		go client.StreamPositions(user, false, false, 20, GmxCallback)
 	}
-	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 1, GmxCallback)
 
 }
 
@@ -50,13 +50,12 @@ func HegicScript() {
 		log.Fatal(err)
 	}
 
-	fmt.Println('s')
 	var people []string
 
 	leaderboard, err := client.GetLeaderboard()
 
 	for _, x := range leaderboard {
-		if x.Overall.PnlPercent > 100 && x.Overall.ClosedContractsCount > 20 {
+		if x.Overall.PnlUsd > 1000 {
 			people = append(people, x.User)
 		}
 	}
@@ -65,13 +64,13 @@ func HegicScript() {
 		log.Fatal(err)
 	}
 	go client.StreamCacheUpdates(10, false)
-	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 10, HegicCallback)
+
+	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, false, 10, HegicCallback)
 
 	for _, person := range people {
-		time.Sleep(5)
-		client.StreamPositions(person, false, true, 3, HegicCallback)
+		time.Sleep(500 * time.Millisecond)
+		go client.StreamPositions(person, false, false, 3, HegicCallback)
 	}
-
 }
 
 var Users []string = []string{
@@ -195,6 +194,7 @@ func GmxCallback(
 	userId string,
 	dataSource string,
 ) {
+	fmt.Println(newPositions)
 	SendWebhook(userId, dataSource, ConvertFuturesPositionsToInterface(newPositions))
 }
 
@@ -225,7 +225,7 @@ func SendWebhook(userId string, dataSource string, dataList []interface{}) {
 		fmt.Println(err)
 		return
 	}
-	webhookURL := "https://delicious-agency-45.webhook.cool" // Replace with your actual webhook URL
+	webhookURL := "https://embarrassed-insect-90.webhook.cool" // Replace with your actual webhook URL
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
