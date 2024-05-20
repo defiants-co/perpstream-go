@@ -20,8 +20,7 @@ func main() {
 
 	wg.Add(1)
 
-	// go GmxScript()
-	// fmt.Println(1)
+	go GmxScript()
 	go HegicScript()
 
 	wg.Wait()
