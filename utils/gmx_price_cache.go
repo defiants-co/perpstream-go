@@ -27,7 +27,7 @@ type GmxPriceCache struct {
 	debug  bool
 }
 
-func NewPriceCache() *GmxPriceCache {
+func NewGmxPriceCache() *GmxPriceCache {
 	initialPriceMap := make(map[string]float64)
 	keys := make([]string, 0, len(GmxCollateralTokenDecimals))
 	for key := range GmxCollateralTokenDecimals {

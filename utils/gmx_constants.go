@@ -7,6 +7,7 @@ const (
 	GmxDataStoreContractAddress = "0xFD70de6b91282D8017aA4E741e9Ae325CAb992d8"
 	GmxPricesUrl                = "https://arbitrum-api.gmxinfra.io/signed_prices/latest"
 	GmxDataSourceName           = "gmx-v2-arbitrum"
+	GmxLeaderboardUrl           = "https://gmx.squids.live/gmx-synthetics-arbitrum/graphql"
 )
 
 // MarketHashTable

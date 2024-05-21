@@ -123,3 +123,31 @@ func (e *StreamFailedToStartError) Error() string {
 func NewStreamFailedToStartError() *StreamFailedToStartError {
 	return &StreamFailedToStartError{}
 }
+
+type UserAlreadyInCacheError struct {
+	Username string
+}
+
+// Implement the Error method for the custom error type
+func (e *UserAlreadyInCacheError) Error() string {
+	return fmt.Sprintf("User '%s' is already in the cache", e.Username)
+}
+
+// Constructor function for creating a new UserAlreadyInCacheError
+func NewUserAlreadyInCacheError(username string) error {
+	return &UserAlreadyInCacheError{Username: username}
+}
+
+// Define the custom error type with an exportable name
+type CacheStreamNotRunningError struct {
+}
+
+// Implement the Error method for the custom error type
+func (e *CacheStreamNotRunningError) Error() string {
+	return "Cache is not running"
+}
+
+// Constructor function for creating a new CacheStreamNotRunningError
+func NewCacheStreamNotRunningError() error {
+	return &CacheStreamNotRunningError{}
+}

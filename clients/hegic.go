@@ -216,7 +216,7 @@ func (client *HegicClient) StreamPositions(
 				if debug {
 					fmt.Println("detected change, calling callback")
 				}
-				go callback(newPositions, userId, utils.GmxDataSourceName)
+				go callback(newPositions, userId, utils.HegicDataSourceName)
 				lastPositions = newPositions
 				if debug {
 					fmt.Println("called callback")

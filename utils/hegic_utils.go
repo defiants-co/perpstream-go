@@ -63,7 +63,7 @@ func HegicPositionToOption(hp *HegicPosition) models.OptionPosition {
 		UnderlyingToken: hp.Asset,
 		ContractAmount:  hp.Amount,
 		PremiumPaid:     hp.PremiumPaid,
-		Strategy:        strings.ReplaceAll(strings.ToUpper(hp.Type), " ", "_"),
+		Strategy:        strings.ReplaceAll(strings.ToLower(hp.Type), " ", "_"),
 		ExpirationDate:  hp.ExpirationDate.UTC().Format(time.RFC3339),
 		DurationDays:    hp.Period,
 		PnlUsd:          math.Round(hp.UserNetProfit*100) / 100,
