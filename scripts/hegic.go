@@ -35,7 +35,6 @@ func HegicScript() {
 
 	for _, person := range people {
 		time.Sleep(500 * time.Millisecond)
-		fmt.Println("hello")
 		go client.StreamPositions(person, false, true, 3, HegicCallback)
 	}
 }
