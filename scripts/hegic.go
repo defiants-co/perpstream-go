@@ -3,7 +3,6 @@ package scripts
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/defiants-co/perpstream-go/clients"
 )
@@ -34,7 +33,7 @@ func HegicScript() {
 	go client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", false, true, 3, HegicCallback)
 
 	for _, person := range people {
-		time.Sleep(500 * time.Millisecond)
+		// time.Sleep(500 * time.Millisecond)
 		go client.StreamPositions(person, false, true, 3, HegicCallback)
 	}
 }

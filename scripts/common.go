@@ -132,9 +132,7 @@ func GmxCallback(
 ) {
 	fmt.Println(newPositions)
 	fmt.Println(dataSource)
-	if len(newPositions) > 0 {
-		SendWebhook(userId, dataSource, ConvertFuturesPositionsToInterface(newPositions))
-	}
+	SendWebhook(userId, dataSource, ConvertFuturesPositionsToInterface(newPositions))
 }
 
 func HegicCallback(
@@ -144,7 +142,10 @@ func HegicCallback(
 ) {
 	fmt.Println(newPositions)
 	fmt.Println(dataSource)
-	SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(newPositions))
+	if len(newPositions) > 0 {
+		SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(newPositions))
+
+	}
 }
 
 type Payload struct {
@@ -165,7 +166,7 @@ func SendWebhook(userId string, dataSource string, dataList []interface{}) {
 		fmt.Println(err)
 		return
 	}
-	webhookURL := "https://delightful-magician-61.webhook.cool" // Replace with your actual webhook URL
+	webhookURL := "https://late-toddler-36.webhook.cool" // Replace with your actual webhook URL
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
