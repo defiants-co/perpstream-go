@@ -70,6 +70,7 @@ var GmxCollateralTokenDecimals = map[string]int{
 	"DAI":    18,
 	"USDC.e": 6,
 	"USDT":   6,
+	"AAVE":   18,
 }
 var GmxSyntheticsTokenDecimals = map[string]int{
 	"DOGE": 8,

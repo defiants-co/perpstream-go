@@ -1,7 +1,7 @@
 package scripts
 
 import (
-	"sync"
+	"fmt"
 	"time"
 
 	"github.com/defiants-co/perpstream-go/clients"
@@ -18,11 +18,14 @@ func KwentaScript() {
 		panic(err)
 	}
 
-	go client.StreamCacheUpdates(5, false)
+	go client.StreamCacheUpdates(1, false)
 	time.Sleep(3 * time.Second)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	client.StreamPositions("0xeF5b5616FBa4e4d30a6B74De2B912025F8e627E4", true, true, 1, GmxCallback)
-	wg.Wait()
+	counter := 0
+	for _, user := range kwentaAccounts {
+		// time.Sleep(1 * time.Second)
+		counter++
+		go client.StreamPositions(user, false, false, 3, GmxCallback)
+		fmt.Println(counter, "started stream "+user)
+	}
 
 }

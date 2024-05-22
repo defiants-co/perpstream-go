@@ -13,9 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// The way that you can stream positions is that the client takes a rolling cache of ALL positions every few seconds,
-// and then maps them to the stream of each user. then, every time the response is received, an algorithm
-// checks for changes for each stream according to the cache, and calls the callback if necessary.
+// HegicClient manages the streaming and caching of options positions.
 type HegicClient struct {
 	BaseOptionsClient
 	ActiveOptionsCache   *[]utils.HegicPosition
@@ -23,7 +21,13 @@ type HegicClient struct {
 	mu                   sync.Mutex
 }
 
-func Fetch(path string, result interface{}) error {
+// Fetch makes an HTTP GET request to the given path and unmarshals the result into the provided interface.
+// Parameters:
+// - path: The API path to fetch data from.
+// - result: The interface to unmarshal the fetched data into.
+// Returns:
+// - An error if the fetch or unmarshal operation fails.
+func hegicFetch(path string, result interface{}) error {
 	resp, err := http.Get(utils.HegicApiUrl + path)
 	if err != nil {
 		return utils.NewFailedFetchOptionPositionsError("failed to fetch")
@@ -48,32 +52,39 @@ func Fetch(path string, result interface{}) error {
 	return nil
 }
 
+// NewHegicClient creates a new HegicClient instance and updates its options cache.
+// Returns:
+// - A pointer to a new HegicClient instance.
+// - An error if updating the options cache fails.
 func NewHegicClient() (*HegicClient, error) {
-	var activeOtionsList *[]utils.HegicPosition
-	var inactiveOptionsList *[]utils.HegicPosition
-	client := &HegicClient{ActiveOptionsCache: activeOtionsList, InactiveOptionsCache: inactiveOptionsList}
-	err := client.UpdateOptionsCache()
+	var activeOptionsList []utils.HegicPosition
+	var inactiveOptionsList []utils.HegicPosition
+	client := &HegicClient{ActiveOptionsCache: &activeOptionsList, InactiveOptionsCache: &inactiveOptionsList}
+	err := client.updateOptionsCache()
 	if err != nil {
 		return nil, err
 	}
 	return client, nil
 }
 
+// GetLeaderboard fetches the leaderboard data from the API.
+// Returns:
+// - A slice of HegicUserStats models.
+// - An error if fetching the leaderboard data fails.
 func (client *HegicClient) GetLeaderboard() ([]utils.HegicUserStats, error) {
 	var response []utils.HegicUserStats
-
-	err := Fetch("leaderboard", &response)
-
+	err := hegicFetch("leaderboard", &response)
 	if err != nil {
 		return nil, err
 	}
-
 	return response, nil
 }
 
-func (client *HegicClient) UpdateOptionsCache() error {
-	allOptions, err := client.GetAllOptions()
-
+// UpdateOptionsCache updates the client's active and inactive options cache.
+// Returns:
+// - An error if fetching all options fails.
+func (client *HegicClient) updateOptionsCache() error {
+	allOptions, err := client.getAllOptions()
 	if err != nil {
 		return err
 	}
@@ -96,63 +107,79 @@ func (client *HegicClient) UpdateOptionsCache() error {
 	return nil
 }
 
+// StreamCacheUpdates periodically updates the options cache.
+// Parameters:
+// - sleepSeconds: The number of seconds to sleep between updates.
+// - debug: A boolean indicating if debugging is enabled.
 func (client *HegicClient) StreamCacheUpdates(sleepSeconds int, debug bool) {
 	for {
 		if debug {
 			fmt.Println("fetching options info")
 		}
-		client.UpdateOptionsCache()
+		client.updateOptionsCache()
 		if debug {
 			fmt.Println("fetched options info")
 		}
-		time.Sleep(time.Duration(sleepSeconds))
-
+		time.Sleep(time.Duration(sleepSeconds) * time.Second)
 	}
 }
 
+// GetActiveOptionsFromCache returns the active options from the cache.
+// Returns:
+// - A slice of HegicPosition models.
 func (client *HegicClient) GetActiveOptionsFromCache() []utils.HegicPosition {
 	client.mu.Lock()
 	defer client.mu.Unlock()
 	return *client.ActiveOptionsCache
 }
 
+// GetInactiveOptionsFromCache returns the inactive options from the cache.
+// Returns:
+// - A slice of HegicPosition models.
 func (client *HegicClient) GetInactiveOptionsFromCache() []utils.HegicPosition {
 	client.mu.Lock()
 	defer client.mu.Unlock()
 	return *client.InactiveOptionsCache
 }
 
-func (client *HegicClient) GetAllOptions() ([]utils.HegicPosition, error) {
+// GetAllOptions fetches all options from the API.
+// Returns:
+// - A slice of HegicPosition models.
+// - An error if fetching the options fails.
+func (client *HegicClient) getAllOptions() ([]utils.HegicPosition, error) {
 	var hegicPositions utils.HegicPositionsResponse
-
-	err := Fetch("positions", &hegicPositions)
-
+	err := hegicFetch("positions", &hegicPositions)
 	if err != nil {
 		return nil, err
 	}
-
-	return hegicPositions.Positions, err
+	return hegicPositions.Positions, nil
 }
 
-func (client *HegicClient) GetUserInformation(userId string) (*utils.HegicUserData, error) {
+// GetUserInformation fetches user information for a given user ID from the API.
+// Parameters:
+// - userId: The ID of the user whose information is to be fetched.
+// Returns:
+// - A pointer to a HegicUserData model.
+// - An error if the user ID is invalid or fetching the user information fails.
+func (client *HegicClient) getUserInformation(userId string) (*utils.HegicUserData, error) {
 	if !common.IsHexAddress(userId) {
 		return nil, utils.NewInvalidAddressError(userId)
 	}
 
 	queryStr := "user?a=" + userId
-
 	var response utils.HegicUserData
-
-	err := Fetch(queryStr, &response)
-
+	err := hegicFetch(queryStr, &response)
 	if err != nil {
 		return nil, err
 	}
-
 	return &response, nil
-
 }
 
+// fetchRetry retries fetching positions until it succeeds.
+// Parameters:
+// - userId: The ID of the user whose positions are to be fetched.
+// Returns:
+// - A slice of OptionPosition models.
 func (client *HegicClient) fetchRetry(userId string) []models.OptionPosition {
 	positions, err := client.FetchPositions(userId)
 	if err != nil {
@@ -162,27 +189,51 @@ func (client *HegicClient) fetchRetry(userId string) []models.OptionPosition {
 	return positions
 }
 
+// FetchPositions fetches the options positions for a given user ID from the active options cache.
+// Parameters:
+// - userId: The ID of the user whose positions are to be fetched.
+// Returns:
+// - A slice of OptionPosition models.
+// - An error if fetching positions fails.
 func (client *HegicClient) FetchPositions(userId string) ([]models.OptionPosition, error) {
 	allOptions := client.GetActiveOptionsFromCache()
 	var userOptions []models.OptionPosition
 	for _, option := range allOptions {
 		if option.User == userId && option.CloseDate.Year() == 1 {
-			userOptions = append(userOptions,
-				utils.HegicPositionToOption(
-					&option,
-				))
+			userOptions = append(userOptions, utils.HegicPositionToOption(&option))
 		}
 	}
-
 	return userOptions, nil
 }
 
+func (c *HegicClient) FetchAnalytics() (*utils.HegicProjectedPnl, error) {
+	var hegicData utils.HegicProjectedPnl
+
+	err := hegicFetch("analytics", &hegicData)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &hegicData, nil
+}
+
+// StreamPositions streams the options positions for a given user ID, calling the callback on changes.
+// Parameters:
+// - userId: The ID of the user whose positions are to be streamed.
+// - debug: A boolean indicating if debugging is enabled.
+// - initWithCallback: A boolean indicating if the callback should be invoked initially.
+// - sleepSeconds: The number of seconds to sleep between polling.
+// - callback: A function that will be called with the new positions, userId, and dataSource.
+// Returns:
+// - An error if streaming fails.
 func (client *HegicClient) StreamPositions(
 	userId string,
 	debug bool,
 	initWithCallback bool,
 	sleepSeconds int,
 	callback func(
+		oldPositions []models.OptionPosition,
 		newPositions []models.OptionPosition,
 		userId string,
 		dataSource string,
@@ -198,7 +249,7 @@ func (client *HegicClient) StreamPositions(
 		if debug {
 			fmt.Println("calling initiation callback")
 		}
-		go callback(lastPositions, userId, utils.HegicDataSourceName)
+		go callback(lastPositions, lastPositions, userId, utils.HegicDataSourceName)
 	}
 
 	for {
@@ -216,7 +267,7 @@ func (client *HegicClient) StreamPositions(
 				if debug {
 					fmt.Println("detected change, calling callback")
 				}
-				go callback(newPositions, userId, utils.HegicDataSourceName)
+				go callback(lastPositions, newPositions, userId, utils.HegicDataSourceName)
 				lastPositions = newPositions
 				if debug {
 					fmt.Println("called callback")

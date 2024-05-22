@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"strconv"
 
@@ -60,7 +61,10 @@ func KwentaToFuturesPosition(p *KwentaFuturesPosition, pc *KwentaPriceCache) *mo
 	}
 
 	entryPriceFloat, _ := strconv.ParseFloat(p.AvgEntryPrice, 64)
-	entryPrice := math.Round(10000*entryPriceFloat/math.Pow(10, 18)) / 10000
+	entryPrice := entryPriceFloat / math.Pow(10, 18)
+	if p.Market == "PEPE-USD" {
+		fmt.Println(p.EntryPrice)
+	}
 
 	marginFloat, _ := strconv.ParseFloat(p.InitialMargin, 64)
 	collateral := math.Round(10000*marginFloat/math.Pow(10, 18)) / 10000
@@ -82,7 +86,7 @@ func KwentaToFuturesPosition(p *KwentaFuturesPosition, pc *KwentaPriceCache) *mo
 		pnl = ((entryPrice - markPrice) * sizeInToken) - fee
 	}
 
-	sizeInUsd := sizeInToken * markPrice
+	sizeInUsd := math.Round(100*sizeInToken*markPrice) / 100
 	leverage := math.Round(100*sizeInUsd/collateral) / 100
 
 	return &models.FuturesPosition{

@@ -9,6 +9,82 @@ import (
 	"github.com/defiants-co/perpstream-go/models"
 )
 
+type HegicProjectedPnl struct {
+	ProjectedPnlCurrentEpoch                           []HegicScenarioData `json:"projectedPnl_CurrentEpoch"`
+	ManualRiskAnalysis                                 []HegicScenarioData `json:"manualRiskAnalysis"`
+	ProjectedPnl7_14                                   []HegicScenarioData `json:"projectedPnl_7_14"`
+	ProjectedPnl14_30                                  []HegicScenarioData `json:"projectedPnl_14_30"`
+	ProjectedPnl30_60                                  []HegicScenarioData `json:"projectedPnl_30_60"`
+	ProjectedPnl60_90                                  []HegicScenarioData `json:"projectedPnl_60_90"`
+	OpenInterestBySentiment                            HegicSentimentData  `json:"openInterestBySentiment"`
+	ExpectedGrossMarginDates                           HegicDatesData      `json:"expectedGrossMarginByDateAndSentiment"`
+	ExpectedGrossMargin                                []HegicScenarioData `json:"ExpectedGrossMarginForCurrentEpoch"`
+	ExpectedGrossMarginByPrice4                        []HegicScenarioData `json:"ExpectedGrossMarginByPrice_4"`
+	ExpectedGrossMarginByPrice3                        []HegicScenarioData `json:"ExpectedGrossMarginByPrice_3"`
+	ExpectedGrossMarginByPrice2                        []HegicScenarioData `json:"ExpectedGrossMarginByPrice_2"`
+	ExpectedGrossMarginByPrice1                        []HegicScenarioData `json:"ExpectedGrossMarginByPrice_1"`
+	ExpectedGrossMarginByPrice                         []HegicScenarioData `json:"expectedGrossMarginByPrice"`
+	ExpectedGrossMarginByPricesWithoutInversionProduct []HegicScenarioData `json:"expectedGrossMarginByPricesWithoutInversionProduct"`
+	CountContracts                                     int                 `json:"countContracts"`
+	RealizedRevenue                                    float64             `json:"realizedRevenue"`
+	UnrealizedRevenue                                  float64             `json:"unrealizedRevenue"`
+	LockedCollateral                                   float64             `json:"lockedCollateral"`
+	RealizedPayOff                                     float64             `json:"realizedPayOff"`
+	UnrealizedPayOff                                   float64             `json:"unrealizedPayOff"`
+	RealizedGrossMargin                                float64             `json:"realizedGrossMargin"`
+	UnrealizedGrossMargin                              float64             `json:"unrealizedGrossMargin"`
+	TotalTradingVolume                                 float64             `json:"totalTradingVolume"`
+	TotalOpenInterest                                  float64             `json:"totalOpenInterest"`
+	EthOpenInterest                                    float64             `json:"ethOpenInterest"`
+	BtcOpenInterest                                    float64             `json:"btcOpenInterest"`
+	UnrealizedGrossMarginForCurrentEpoch               float64             `json:"unrealizedGrossMarginForCurentEpoch"`
+	RealizedGrossMarginForCurrentEpoch                 float64             `json:"realizedGrossMarginForCurrentEpoch"`
+	EstimatedGrossMarginByEndOfCurrentEpoch            float64             `json:"estimatedGrossMarginByTheEndOfCurrentEpoch"`
+	Solvency                                           float64             `json:"solvency"`
+	OperationalBalance                                 float64             `json:"opterationalBalance"`
+	PayoffPoolBalance                                  float64             `json:"payoffPoolBalance"`
+	ExpectedGrossMarginByDateFormatTime                HegicDateTimeData   `json:"expectedGrossMarginByDateFormatTime"`
+}
+
+type HegicScenarioData struct {
+	Scenario                 string  `json:"scenario"`
+	EthPrice                 float64 `json:"ethPrice"`
+	BtcPrice                 float64 `json:"btcPrice"`
+	EthExpectedGrossMargin   float64 `json:"ethExpectedGrossMargin"`
+	BtcExpectedGrossMargin   float64 `json:"btcExpectedGrossMargin"`
+	TotalExpectedGrossMargin float64 `json:"totalExpectedGrossMargin"`
+	Order                    int     `json:"order"`
+	CoverPoolPnl             float64 `json:"coverPoolPnl"`
+}
+
+type HegicSentimentData struct {
+	Bullish        float64 `json:"bullish"`
+	Bearish        float64 `json:"bearish"`
+	HighVolatility float64 `json:"highVolatility"`
+	LowVolatility  float64 `json:"lowVolatility"`
+}
+
+type HegicDatesData struct {
+	Dates          []HegicDateRange `json:"dates"`
+	Bullish        []float64        `json:"bullish"`
+	Bearish        []float64        `json:"bearish"`
+	HighVolatility []float64        `json:"highVolatility"`
+	LowVolatility  []float64        `json:"lowVolatility"`
+}
+
+type HegicDateRange struct {
+	End   time.Time `json:"end"`
+	Start time.Time `json:"start"`
+}
+
+type HegicDateTimeData struct {
+	Dates          []time.Time `json:"dates"`
+	Bullish        []float64   `json:"bullish"`
+	Bearish        []float64   `json:"bearish"`
+	HighVolatility []float64   `json:"highVolatility"`
+	LowVolatility  []float64   `json:"lowVolatility"`
+}
+
 type HegicUserStats struct {
 	User         string     `json:"user"`
 	Overall      HegicStats `json:"overall"`

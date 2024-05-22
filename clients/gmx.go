@@ -24,6 +24,12 @@ type GmxClient struct {
 }
 
 // NewGmxClient creates a new GmxClient with multiple RPC URLs for redundancy.
+// Parameters:
+// - rpcUrls: A slice of RPC URLs to be used for creating MainCaller instances.
+// - priceCache: A cache for GMX prices.
+// Returns:
+// - A pointer to a new GmxClient instance.
+// - An error if the priceCache is nil or if there is an issue creating MainCaller instances.
 func NewGmxClient(rpcUrls []string, priceCache *utils.GmxPriceCache) (*GmxClient, error) {
 	if priceCache == nil {
 		return nil, utils.NewPriceCacheMissingError()
@@ -47,6 +53,8 @@ func NewGmxClient(rpcUrls []string, priceCache *utils.GmxPriceCache) (*GmxClient
 }
 
 // getCaller returns the next MainCaller in a round-robin fashion.
+// Returns:
+// - A pointer to the next MainCaller instance.
 func (client *GmxClient) getCaller() *abis.MainCaller {
 	client.mu.Lock()
 	defer client.mu.Unlock()
@@ -56,6 +64,11 @@ func (client *GmxClient) getCaller() *abis.MainCaller {
 }
 
 // FetchPositions fetches the futures positions for a given user ID.
+// Parameters:
+// - userId: The ID of the user whose positions are to be fetched.
+// Returns:
+// - A slice of FuturesPosition models.
+// - An error if the user ID is invalid or if fetching positions fails.
 func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition, error) {
 	if !common.IsHexAddress(userId) {
 		return nil, utils.NewInvalidAddressError(userId)
@@ -90,6 +103,10 @@ func (client *GmxClient) FetchPositions(userId string) ([]models.FuturesPosition
 }
 
 // fetchRetry retries fetching positions until it succeeds.
+// Parameters:
+// - userId: The ID of the user whose positions are to be fetched.
+// Returns:
+// - A slice of FuturesPosition models.
 func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
 	positions, err := client.FetchPositions(userId)
 	if err != nil {
@@ -100,12 +117,21 @@ func (client *GmxClient) fetchRetry(userId string) []models.FuturesPosition {
 }
 
 // StreamPositions streams the futures positions for a given user ID, calling the callback on changes.
+// Parameters:
+// - userId: The ID of the user whose positions are to be streamed.
+// - debug: A boolean indicating if debugging is enabled.
+// - initWithCallback: A boolean indicating if the callback should be invoked initially.
+// - sleepSeconds: The number of seconds to sleep between polling.
+// - callback: A function that will be called with the new positions, userId, and dataSource.
+// Returns:
+// - An error if streaming fails.
 func (client *GmxClient) StreamPositions(
 	userId string,
 	debug bool,
 	initWithCallback bool,
 	sleepSeconds float64,
 	callback func(
+		oldPositions []models.FuturesPosition,
 		newPositions []models.FuturesPosition,
 		userId string,
 		dataSource string,
@@ -121,7 +147,7 @@ func (client *GmxClient) StreamPositions(
 		if debug {
 			fmt.Println("calling initiation callback")
 		}
-		go callback(lastPositions, userId, utils.GmxDataSourceName)
+		go callback(lastPositions, lastPositions, userId, utils.GmxDataSourceName)
 	}
 
 	for {
@@ -139,7 +165,7 @@ func (client *GmxClient) StreamPositions(
 				if debug {
 					fmt.Println("detected change, calling callback")
 				}
-				go callback(newPositions, userId, utils.GmxDataSourceName)
+				go callback(lastPositions, newPositions, userId, utils.GmxDataSourceName)
 				lastPositions = newPositions
 				fmt.Println("called callback")
 			}

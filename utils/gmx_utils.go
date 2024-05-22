@@ -24,12 +24,12 @@ func GmxToFuturesPosition(position abis.PositionProps, priceCache *GmxPriceCache
 
 	collateralToken := GmxAddressToCollateralToken[position.Addresses.CollateralToken.Hex()]
 
-	sizeInUsd, _ := position.Numbers.SizeInUsd.Float64()
-	sizeInUsd = math.Round(sizeInUsd/math.Pow(10, 26)) / (math.Pow(10, 4))
+	oldSizeInUsd, _ := position.Numbers.SizeInUsd.Float64()
+	oldSizeInUsd = math.Round(oldSizeInUsd/math.Pow(10, 26)) / (math.Pow(10, 4))
 
 	sizeInTokens, _ := position.Numbers.SizeInTokens.Float64()
 	sizeInTokens = math.Round(10000*sizeInTokens/(math.Pow(10, float64(GmxMarketToDecimals[token])))) / 10000
-	entryPrice := math.Round((sizeInUsd/sizeInTokens)*10000) / 10000
+	entryPrice := math.Round((oldSizeInUsd/sizeInTokens)*10000) / 10000
 
 	collateralTokenAmountFl, _ := position.Numbers.CollateralAmount.Float64()
 	collateralTokenAmount := collateralTokenAmountFl / math.Pow(10, float64(GmxCollateralTokenDecimals[collateralToken]))
@@ -39,6 +39,8 @@ func GmxToFuturesPosition(position abis.PositionProps, priceCache *GmxPriceCache
 	tokenPrice := priceCache.ReturnPrice(token)
 
 	leverage := math.Round(1000*(tokenPrice*sizeInTokens)/(collateralPrice*collateralTokenAmount)) / 1000
+
+	currentSizeInUsd := tokenPrice * sizeInTokens
 
 	var pnl float64
 
@@ -52,7 +54,7 @@ func GmxToFuturesPosition(position abis.PositionProps, priceCache *GmxPriceCache
 		CollateralToken:       collateralToken,
 		CollateralTokenAmount: collateralTokenAmount,
 		Market:                market,
-		SizeUsd:               sizeInUsd,
+		SizeUsd:               currentSizeInUsd,
 		Size:                  sizeInTokens,
 		IsLong:                position.Flags.IsLong,
 		EntryPrice:            entryPrice,

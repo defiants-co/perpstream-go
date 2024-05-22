@@ -9,6 +9,108 @@ import (
 	"github.com/defiants-co/perpstream-go/models"
 )
 
+var kwentaAccounts []string = []string{
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x22866c5c7f2b5475cff41465c53aa813b4c22b13",
+	"0xe8c19db00287e3536075114b2576c70773e039bd",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xf78310ed6641e6c4e221e9d676440ac8645d3afe",
+	"0x30391a4f9d2f099d41888f811784281cba4097f0",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0x30391a4f9d2f099d41888f811784281cba4097f0",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0x3b7424d5cc87dc2b670f4c99540f7380de3d5880",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x44322e2f396e4e5244f4f09b863044847e4a54da",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x8af700ba841f30e0a3fcb0ee4c4a9d223e1efa05",
+	"0x1dc67adaf9f163c5b1a95043addbdfa1af58e512",
+	"0x795f50722cf5ad82f78dda8dc8f7b235332977c3",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xfee4700a35676fbdbaca75b7bd5cc7bb2abf9910",
+	"0xd120cf3e0408dd794f856e8ca2a23e3396a9b687",
+	"0x27cc4d6bc95b55a3a981bf1f1c7261cda7bb0931",
+	"0x88965659f799fcb2f70937c31180b0acb7106ac5",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0xd1bbaa9eab9a5f51ee3b68bb6ff3c1f60a8c0add",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x30391a4f9d2f099d41888f811784281cba4097f0",
+	"0x795f50722cf5ad82f78dda8dc8f7b235332977c3",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x1dc67adaf9f163c5b1a95043addbdfa1af58e512",
+	"0xccfa0530b9d52f970d1a2daea670ce58e4176389",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x44322e2f396e4e5244f4f09b863044847e4a54da",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xd1bbaa9eab9a5f51ee3b68bb6ff3c1f60a8c0add",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x565a65432ca44a999eb7217815d58594a559ccb2",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x8e27d64063d74c7c2f7c8609e5b6d78d03378d23",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x63a94473cbc5329e5dc0b070ef7586d910060670",
+	"0x0514f2f3e0277c47117e3f33d9390efb0acfbdfe",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x1dc67adaf9f163c5b1a95043addbdfa1af58e512",
+	"0xe8c19db00287e3536075114b2576c70773e039bd",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0xe8c19db00287e3536075114b2576c70773e039bd",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0xab281460020aa77fd533245c83660948152e9b46",
+	"0xb2ceb04874fce4cefd38c751c8ed7b88d2185c4d",
+	"0x1c1e747a6be850549e9655addf59fd9e7cc2d4dc",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0xd1bbaa9eab9a5f51ee3b68bb6ff3c1f60a8c0add",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x795f50722cf5ad82f78dda8dc8f7b235332977c3",
+	"0x236f968b3e9cc45d6d86bc95386a27c8051ab1ce",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x565a65432ca44a999eb7217815d58594a559ccb2",
+	"0x1c1e747a6be850549e9655addf59fd9e7cc2d4dc",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0xeed09cc4ebf3fa599eb9ffd7a280e7b944b436b7",
+	"0x1d4acbc9f70cadd4e6eb215731b8a20bb848d042",
+	"0x09cf50574504d9dcf127e848a6058e8e0bb814aa",
+	"0x30391a4f9d2f099d41888f811784281cba4097f0",
+	"0x236f968b3e9cc45d6d86bc95386a27c8051ab1ce",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x4dc589ee79ebb4c457c8d35555570ccfbd247e36",
+	"0x3b7424d5cc87dc2b670f4c99540f7380de3d5880",
+	"0xcd4ddf2aed875248d6d586b57146858a71eafc02",
+	"0x795f50722cf5ad82f78dda8dc8f7b235332977c3",
+	"0x30391a4f9d2f099d41888f811784281cba4097f0",
+	"0x565a65432ca44a999eb7217815d58594a559ccb2",
+	"0x360537542135943e8fc1562199aea6d0017f104b",
+	"0x31d3243cfb54b34fc9c73e1cb1137124bd6b13e1",
+	"0x160a8d28d63961297e51e4f1a0401bf4d27f5162",
+	"0xd120cf3e0408dd794f856e8ca2a23e3396a9b687",
+	"0xd1bbaa9eab9a5f51ee3b68bb6ff3c1f60a8c0add",
+	"0x4dd5d939486b23aabcfd08a063811e42f7c2b6a9",
+	"0x92812499ff2c040f93121aab684680a6e603c4a7",
+	"0xe996148026c14ec87741d7d34592035fe61967f7",
+	"0x2b19fde5d7377b48be50a5d0a78398a496e8b15c",
+	"0xccfa0530b9d52f970d1a2daea670ce58e4176389",
+	"0x1e5c9ef6a07f8ee36e21c0c2737c9b19f5de7f2a",
+}
 var Users []string = []string{
 	"0x00000000007Cee88e01241C9Db0A02b859DB5B52",
 	"0x0189c952c7e938adbf3bBcf70715B8e0964c9806",
@@ -126,39 +228,42 @@ func ConvertOptionPositionsToInterface(positions []models.OptionPosition) []inte
 }
 
 func GmxCallback(
+	oldPositions []models.FuturesPosition,
 	newPositions []models.FuturesPosition,
 	userId string,
 	dataSource string,
 ) {
-	fmt.Println(newPositions)
-	fmt.Println(dataSource)
-	SendWebhook(userId, dataSource, ConvertFuturesPositionsToInterface(newPositions))
+
+	if len(newPositions) > 0 {
+		SendWebhook(userId, dataSource, ConvertFuturesPositionsToInterface(oldPositions), ConvertFuturesPositionsToInterface(newPositions))
+	}
 }
 
 func HegicCallback(
+	oldPositions []models.OptionPosition,
 	newPositions []models.OptionPosition,
 	userId string,
 	dataSource string,
 ) {
-	fmt.Println(newPositions)
-	fmt.Println(dataSource)
 	if len(newPositions) > 0 {
-		SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(newPositions))
+		SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(oldPositions), ConvertOptionPositionsToInterface(newPositions))
 
 	}
 }
 
 type Payload struct {
-	UserId     string        `json:"user_id"`
-	DataSource string        `json:"data_source"`
-	Data       []interface{} `json:"data"`
+	UserId      string        `json:"user_id"`
+	DataSource  string        `json:"data_source"`
+	OldPosition []interface{} `json:"old_positions"`
+	NewPosition []interface{} `json:"new_positions"`
 }
 
-func SendWebhook(userId string, dataSource string, dataList []interface{}) {
+func SendWebhook(userId string, dataSource string, old []interface{}, new []interface{}) {
 	payload := Payload{
-		UserId:     userId,
-		DataSource: dataSource,
-		Data:       dataList,
+		UserId:      userId,
+		DataSource:  dataSource,
+		OldPosition: old,
+		NewPosition: new,
 	}
 
 	jsonData, err := json.Marshal(payload)
@@ -166,7 +271,7 @@ func SendWebhook(userId string, dataSource string, dataList []interface{}) {
 		fmt.Println(err)
 		return
 	}
-	webhookURL := "https://late-toddler-36.webhook.cool" // Replace with your actual webhook URL
+	webhookURL := "https://enf8mp2712crr.x.pipedream.net/" // Replace with your actual webhook URL
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
