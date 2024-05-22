@@ -18,6 +18,6 @@ func GmxScript() {
 	}
 	for _, user := range Users {
 		time.Sleep(500 * time.Millisecond)
-		go client.StreamPositions(user, false, false, 3, GmxCallback)
+		go client.StreamPositions(user, false, false, 10, GmxCallback)
 	}
 }

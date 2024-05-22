@@ -18,7 +18,7 @@ func KwentaScript() {
 		panic(err)
 	}
 
-	go client.StreamCacheUpdates(1, false)
+	go client.StreamCacheUpdates(3, false)
 	time.Sleep(3 * time.Second)
 	counter := 0
 	for _, user := range kwentaAccounts {
