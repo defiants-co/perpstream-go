@@ -16,7 +16,7 @@ type OptionPosition struct {
 }
 
 func (o OptionPosition) Equal(other OptionPosition) bool {
-	const floatTolerance = 0.01
+	const floatTolerance = 0.001
 
 	return o.UnderlyingToken == other.UnderlyingToken &&
 		o.Strategy == other.Strategy &&

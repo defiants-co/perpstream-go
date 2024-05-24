@@ -151,3 +151,18 @@ func (e *CacheStreamNotRunningError) Error() string {
 func NewCacheStreamNotRunningError() error {
 	return &CacheStreamNotRunningError{}
 }
+
+// positionsDifferentTypeError is a custom error type.
+type PositionsDifferentTypeError struct {
+	message string
+}
+
+// NewPositionsDifferentTypeError is a constructor function for positionsDifferentTypeError.
+func NewPositionsDifferentTypeError(message string) *PositionsDifferentTypeError {
+	return &PositionsDifferentTypeError{message: message}
+}
+
+// Error implements the error interface for positionsDifferentTypeError.
+func (e *PositionsDifferentTypeError) Error() string {
+	return e.message
+}

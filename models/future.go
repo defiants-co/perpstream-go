@@ -22,13 +22,19 @@ type FuturesPosition struct {
 	PnlUsd    float64 `json:"pnl_usd"`    // Profit and loss in USD, can be positive or negative
 }
 
-// BasicEqual checks if two FuturesPosition objects are equal based on basic fields
+// Comparable checks if two FuturesPosition objects are equal based on basic fields
+func ComparablePosition(position1 *FuturesPosition, position2 *FuturesPosition) bool {
+	if position1 == nil || position2 == nil {
+		return false
+	}
+	return (position1.CollateralToken == position2.CollateralToken &&
+		position1.Market == position2.Market &&
+		position1.IsLong == position2.IsLong)
+}
 
 // Equal checks if two FuturesPosition objects are equal based on all fields including leverage
 func (fp *FuturesPosition) Equal(other *FuturesPosition) bool {
-	return (fp.IsLong == other.IsLong &&
-		fp.Market == other.Market &&
-		fp.CollateralToken == other.CollateralToken &&
+	return (ComparablePosition(fp, other) &&
 		math.Abs(fp.CollateralTokenAmount-other.CollateralTokenAmount) < 0.01*fp.CollateralTokenAmount &&
 		math.Abs(fp.EntryPrice-other.EntryPrice) < 0.1*fp.EntryPrice &&
 		math.Abs(fp.Leverage-other.Leverage) < 1 &&

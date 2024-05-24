@@ -93,7 +93,7 @@ func (client *HegicClient) updateOptionsCache() error {
 	var inactiveOptions []utils.HegicPosition
 	now := time.Now()
 	for _, option := range allOptions {
-		if !now.After(option.ExpirationDate) {
+		if !now.After(option.ExpirationDate) && option.CloseDate.Year() == 1 {
 			activeOptions = append(activeOptions, option)
 		} else {
 			inactiveOptions = append(inactiveOptions, option)
@@ -199,7 +199,7 @@ func (client *HegicClient) FetchPositions(userId string) ([]models.OptionPositio
 	allOptions := client.GetActiveOptionsFromCache()
 	var userOptions []models.OptionPosition
 	for _, option := range allOptions {
-		if option.User == userId && option.CloseDate.Year() == 1 {
+		if option.User == userId {
 			userOptions = append(userOptions, utils.HegicPositionToOption(&option))
 		}
 	}

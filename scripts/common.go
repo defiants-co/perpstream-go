@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/defiants-co/perpstream-go/models"
 )
@@ -247,7 +248,6 @@ func HegicCallback(
 ) {
 	if len(newPositions) > 0 {
 		SendWebhook(userId, dataSource, ConvertOptionPositionsToInterface(oldPositions), ConvertOptionPositionsToInterface(newPositions))
-
 	}
 }
 
@@ -271,7 +271,7 @@ func SendWebhook(userId string, dataSource string, old []interface{}, new []inte
 		fmt.Println(err)
 		return
 	}
-	webhookURL := "https://enf8mp2712crr.x.pipedream.net/" // Replace with your actual webhook URL
+	webhookURL := "https://enccigryc0gjm.x.pipedream.net" // Replace with your actual webhook URL
 	req, err := http.NewRequest("POST", webhookURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error creating HTTP request:", err)
@@ -294,4 +294,24 @@ func SendWebhook(userId string, dataSource string, old []interface{}, new []inte
 		fmt.Println("Webhook sent successfully!")
 	}
 
+}
+
+func WriteStructsToFile(filename string, data []interface{}) error {
+	// Create or open the file
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("could not create file: %v", err)
+	}
+	defer file.Close()
+
+	// Create a JSON encoder and set indentation for pretty print
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+
+	// Encode the data to JSON and write to the file
+	if err := encoder.Encode(data); err != nil {
+		return fmt.Errorf("could not encode data to JSON: %v", err)
+	}
+
+	return nil
 }

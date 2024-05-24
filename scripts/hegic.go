@@ -1,7 +1,6 @@
 package scripts
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/defiants-co/perpstream-go/clients"
@@ -26,7 +25,6 @@ func HegicScript() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(len(people))
 
 	go client.StreamCacheUpdates(1, false)
 
