@@ -33,6 +33,8 @@ type BaseFuturesClient interface {
 			dataSource string,
 		),
 	) error
+
+	GetLeaderBoard()
 }
 
 // BaseOptionsClient defines the interface for options clients.

@@ -16,19 +16,19 @@ func HegicScript() {
 
 	leaderboard, err := client.GetLeaderboard()
 
-	for _, x := range leaderboard {
-		if x.Overall.PnlUsd > 1000 {
-			people = append(people, x.User)
-		}
-	}
+	// for _, x := range leaderboard {
+	// 	if x.Overall.PnlUsd > 1000 {
+	// 		people = append(people, x.User)
+	// 	}
+	// }
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
 	go client.StreamCacheUpdates(1, false)
 
-	for _, person := range people {
-		go client.StreamPositions(person, false, false, 3, HegicCallback)
+	for _, person := range leaderboard {
+		go client.StreamPositions(person.User, false, false, 3, HegicCallback)
 	}
 }

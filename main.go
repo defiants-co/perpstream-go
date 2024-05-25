@@ -13,28 +13,24 @@ import (
 func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go scripts.GmxScript()
+	// go scripts.GmxScript()
 	go scripts.HegicScript()
-	go scripts.KwentaScript()
+	// go scripts.KwentaScript()
 	wg.Wait()
 
 	// hegicClient, _ := clients.NewHegicClient()
 
-	// leaderboard, _ := hegicClient.GetLeaderboard()
+	// hegicOptions := hegicClient.GetActiveOptionsFromCache()
 
-	// var trackedOptions []models.OptionPosition
+	// var options []models.OptionPosition
 
-	// for _, user := range leaderboard {
-	// 	fmt.Println(len(leaderboard))
-	// 	if user.Overall.PnlUsd > 1000 {
-	// 		options, _ := hegicClient.FetchPositions(user.User)
-	// 		for _, option := range options {
-	// 			trackedOptions = append(trackedOptions, option)
-	// 		}
-	// 	}
+	// for _, i := range hegicOptions {
+	// 	opti := utils.HegicPositionToOption(&i)
+	// 	options = append(options, opti)
+
 	// }
-	// fmt.Println(len(trackedOptions))
-	// WriteStructsToFile("positions.json", trackedOptions)
+
+	// WriteStructsToFile("positions.json", options)
 }
 
 func WriteStructsToFile(filename string, data []models.OptionPosition) error {
