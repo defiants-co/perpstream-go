@@ -12,7 +12,7 @@ func HegicScript() {
 		log.Fatal(err)
 	}
 
-	var people []string
+	// var people []string
 
 	leaderboard, err := client.GetLeaderboard()
 
